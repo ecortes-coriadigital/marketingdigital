@@ -1,935 +1,847 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es" class="dark">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CORIA Digital - Agencia de Tecnología y Automatización</title>
-    <meta name="description"
-        content="Agencia de Marketing Digital, Automatización con n8n, Desarrollo Web y Productos de IA.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coria Digital - Marketing Dashboard</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- SEO & Social Media Tags -->
-    <meta property="og:title" content="CORIA Digital - Agencia de Tecnología y Automatización">
-    <meta property="og:description"
-        content="Agencia de Marketing Digital, Automatización con n8n, Desarrollo Web y Productos de IA.">
-    <meta property="og:image"
-        content="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop">
-    <meta property="og:url" content="https://coriadigital.com">
-    <meta property="og:type" content="website">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CORIA Digital - Agencia de Tecnología y Automatización">
-    <meta name="twitter:description"
-        content="Agencia de Marketing Digital, Automatización con n8n, Desarrollo Web y Productos de IA.">
-    <meta name="twitter:image"
-        content="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop">
-
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f172a', /* Slate 900 */
+                            800: '#1e293b', /* Slate 800 */
+                            700: '#334155', /* Slate 700 */
+                        },
+                        brand: {
+                            500: '#6366f1', /* Indigo 500 */
+                            600: '#4f46e5', /* Indigo 600 */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --color-dark-bg: #030303;
-            --color-dark-secondary: #0A0A0A;
-            --color-dark-card: #111111;
-            --color-text-light: #A1A1AA;
-            --color-text-white: #FFFFFF;
-            --color-primary-neon: #8B5CF6;
-            --color-accent-pink: #EC4899;
-        }
-
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--color-dark-bg);
-            color: var(--color-text-light);
-            scroll-behavior: smooth;
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* --- TUBES CURSOR HERO STYLES --- */
-        #hero-tubes-container {
-            position: relative;
-            height: 100vh;
-            width: 100vw;
-            background-color: #000000;
-            overflow: hidden;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        #hero-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        .hero-tubes-content {
-            position: relative;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            pointer-events: none;
-            padding-top: 20px;
-        }
-
-        .hero-interactive {
-            pointer-events: auto;
-            position: relative;
-            z-index: 20;
-        }
-
-        /* --- NEW NAVBAR STYLES (Ported from React Component) --- */
-        .navbar-container {
-            position: fixed;
-            top: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            width: fit-content;
-            max-width: 95%;
-            /* Slightly wider to accommodate Portfolio */
-            /* CAMBIO: Añadida transición suave para el efecto de ocultar/mostrar */
-            transition: transform 0.3s ease-in-out;
-        }
-
-        /* CAMBIO: Clase para ocultar el menú moviéndolo hacia arriba */
-        .navbar-hidden {
-            transform: translate(-50%, -200%);
-            /* Mantiene el centrado X (-50%) y sube en Y (-200%) */
-        }
-
-        .navbar-menu {
-            position: relative;
-            border-radius: 9999px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem 2rem;
-            gap: 1.5rem;
-            /* Reduced gap slightly */
-        }
-
-        .nav-item {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .nav-text {
-            /* CAMBIO: Color base blanco (#ffffff) */
-            color: #ffffff;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        /* CAMBIO: Al hacer hover, cambia a plateado (#a3a3a3 / text-neutral-400) */
-        .nav-item:hover .nav-text {
-            color: #a3a3a3;
-            /* Plateado suave */
-        }
-
-        /* Dropdown Animation Logic */
-        .nav-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px) scale(0.9);
-            padding-top: 1.5rem;
-            /* Spacing from menu */
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
-        }
-
-        .nav-item:hover .nav-dropdown,
-        .nav-item.active .nav-dropdown {
-            /* Added .active support for mobile click */
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0) scale(1);
-            pointer-events: auto;
-        }
-
-        .dropdown-box {
-            background-color: #000000;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8);
-            width: max-content;
-            max-width: 90vw;
-        }
-
-        /* Product Item Styling */
-        .product-link {
-            display: flex;
-            gap: 1rem;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-        }
-
-        .product-link:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .product-thumb {
-            width: 120px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            background-color: #222;
-        }
-
-        /* Mobile Adaptation */
-        @media (max-width: 768px) {
-            .navbar-container {
-                top: 1rem;
-            }
-
-            .navbar-menu {
-                padding: 0.8rem 1rem;
-                gap: 1rem;
-            }
-
-            .nav-text {
-                font-size: 0.75rem;
-            }
-
-            /* Smaller font for mobile fitting */
-            .nav-dropdown {
-                width: 90vw;
-            }
-
-            .dropdown-box {
-                width: 100%;
-                max-width: none;
-            }
-
-            .product-link {
-                flex-direction: column;
-            }
-
-            .product-thumb {
-                width: 100%;
-                height: 100px;
-            }
-        }
-
-        /* --- SECTIONS STYLES --- */
-        .section-padding {
-            padding: 6rem 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .section-padding {
-                padding: 8rem 2rem;
-            }
-        }
-
-        .card-glass {
-            background: rgba(20, 20, 20, 0.6);
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .card-glass:hover {
-            border-color: rgba(139, 92, 246, 0.3);
-            transform: translateY(-5px);
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
 
-        .neon-text-gradient {
-            background: linear-gradient(to right, #8B5CF6, #EC4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* --- INFINITE SLIDER STYLES (JS Powered) --- */
-        .infinite-slider-mask {
-            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .infinite-slider-track {
-            display: flex;
-            width: max-content;
-            /* Animation handled by JS for speed control */
-        }
-
-        .logo-img {
-            height: 16px;
-            width: auto;
-            object-fit: contain;
-            pointer-events: none;
-            user-select: none;
-            filter: brightness(0) invert(1);
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-
-        @media (min-width: 768px) {
-            .logo-img {
-                height: 20px;
-            }
-        }
-
-        .infinite-slider-container:hover .logo-img {
-            opacity: 1;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #000;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
 
-<body class="bg-[#030303] selection:bg-purple-500/30">
+<body class="bg-dark-900 text-white h-screen flex overflow-hidden selection:bg-brand-500 selection:text-white">
 
-    <!-- NEW NAVBAR IMPLEMENTATION -->
-    <div class="navbar-container">
-        <nav class="navbar-menu font-['Poppins']">
+    <!-- Config Modal (Overlay) -->
+    <div id="configModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass p-8 rounded-2xl w-full max-w-md shadow-2xl transform transition-all scale-100">
+            <h2 class="text-2xl font-bold mb-6 text-brand-500 flex items-center gap-2">
+                <i data-lucide="database"></i> Configurar Supabase
+            </h2>
+            <p class="text-gray-400 mb-6 text-sm">Ingresa las credenciales de tu proyecto Supabase para conectar el
+                dashboard.</p>
 
-            <!-- Menu Item: Inicio -->
-            <div class="nav-item">
-                <a href="index.html" class="nav-text hover:text-gray-300 transition-colors">Inicio</a>
-            </div>
-
-            <!-- Menu Item: Servicios -->
-            <div class="nav-item">
-                <p class="nav-text">Servicios</p>
-                <div class="nav-dropdown">
-                    <div class="dropdown-box p-6">
-                        <div class="flex flex-col space-y-4 w-56">
-
-                            <!-- Marketing & SEO -->
-                            <a href="marketing-seo.html"
-                                class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                                <div
-                                    class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                                    <i class="fa-solid fa-bullhorn text-white group-hover:text-gray-300"></i>
-                                </div>
-                                Marketing & SEO
-                            </a>
-
-                            <!-- Automatizaciones -->
-                            <a href="automatizacion.html"
-                                class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                                <div
-                                    class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                                    <i class="fa-solid fa-robot text-white group-hover:text-gray-300"></i>
-                                </div>
-                                Automatizaciones
-                            </a>
-
-                            <!-- Diseño Grafico y WEB -->
-                            <a href="diseno-web.html"
-                                class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                                <div
-                                    class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                                    <i class="fa-solid fa-laptop-code text-white group-hover:text-gray-300"></i>
-                                </div>
-                                Diseño Grafico y WEB
-                            </a>
-
-                            <!-- Desarrollo de Software -->
-                            <a href="software.html"
-                                class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                                <div
-                                    class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                                    <i class="fa-solid fa-code text-white group-hover:text-gray-300"></i>
-                                </div>
-                                Desarrollo de Software
-                            </a>
-                        </div>
-                    </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Project URL</label>
+                    <input type="text" id="supabaseUrl"
+                        class="w-full bg-dark-800 border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition"
+                        placeholder="https://xyz.supabase.co">
                 </div>
-            </div>
-
-            <!-- Menu Item: Productos -->
-            <div class="nav-item">
-                <p class="nav-text">Productos</p>
-                <div class="nav-dropdown">
-                    <div class="dropdown-box p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full md:w-[32rem]">
-
-                            <a href="recepcionista.html" class="product-link group">
-                                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop"
-                                    alt="Recepcionista iA" loading="lazy"
-                                    class="product-thumb shadow-lg shadow-white/5 group-hover:shadow-white/10">
-                                <div>
-                                    <h4
-                                        class="text-white font-bold text-base mb-1 group-hover:text-gray-300 transition-colors">
-                                        Recepcionista 24/7</h4>
-                                    <p class="text-neutral-500 text-xs leading-relaxed">Atención automatizada para
-                                        tu
-                                        negocio.</p>
-                                </div>
-                            </a>
-
-                            <a href="#" class="product-link group">
-                                <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=300&auto=format&fit=crop"
-                                    alt="Contador iA" loading="lazy"
-                                    class="product-thumb shadow-lg shadow-white/5 group-hover:shadow-white/10">
-                                <div>
-                                    <h4
-                                        class="text-white font-bold text-base mb-1 group-hover:text-gray-300 transition-colors">
-                                        Mi contador 24/7</h4>
-                                    <p class="text-neutral-500 text-xs leading-relaxed">Contabilidad inteligente y
-                                        sin
-                                        errores.</p>
-                                </div>
-                            </a>
-
-                            <a href="#" class="product-link group">
-                                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=300&auto=format&fit=crop"
-                                    alt="Cursos iA" loading="lazy"
-                                    class="product-thumb shadow-lg shadow-white/5 group-hover:shadow-white/10">
-                                <div>
-                                    <h4
-                                        class="text-white font-bold text-base mb-1 group-hover:text-gray-300 transition-colors">
-                                        Cursos de iA</h4>
-                                    <p class="text-neutral-500 text-xs leading-relaxed">Domina el futuro con
-                                        nuestros
-                                        cursos.</p>
-                                </div>
-                            </a>
-
-                            <a href="#" class="product-link group">
-                                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop"
-                                    alt="Ebooks" loading="lazy"
-                                    class="product-thumb shadow-lg shadow-white/5 group-hover:shadow-white/10">
-                                <div>
-                                    <h4
-                                        class="text-white font-bold text-base mb-1 group-hover:text-gray-300 transition-colors">
-                                        Ebooks</h4>
-                                    <p class="text-neutral-500 text-xs leading-relaxed">Guías estratégicas para tu
-                                        negocio.</p>
-                                </div>
-                            </a>
-
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Anon Key</label>
+                    <input type="password" id="supabaseKey"
+                        class="w-full bg-dark-800 border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition"
+                        placeholder="eyJh...">
                 </div>
-            </div>
-    </div>
-
-    <!-- Menu Item: Portafolio -->
-    <div class="nav-item">
-        <p class="nav-text">Portafolio</p>
-        <div class="nav-dropdown">
-            <div class="dropdown-box p-6">
-                <div class="flex flex-col space-y-4 w-56">
-
-                    <!-- Recientes -->
-                    <a href="#portafolio"
-                        class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                        <div
-                            class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                            <i class="fa-solid fa-briefcase text-white group-hover:text-gray-300"></i>
-                        </div>
-                        Recientes
-                    </a>
-
-                    <!-- Casos Éxito -->
-                    <a href="#casos"
-                        class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                        <div
-                            class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                            <i class="fa-solid fa-chart-line text-white group-hover:text-gray-300"></i>
-                        </div>
-                        Casos Éxito
-                    </a>
-
-                    <!-- Galería Visual -->
-                    <a href="#galeria"
-                        class="text-white hover:text-gray-300 transition-colors text-sm flex items-center group">
-                        <div
-                            class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-colors">
-                            <i class="fa-regular fa-images text-white group-hover:text-gray-300"></i>
-                        </div>
-                        Galería Visual
-                    </a>
-
-                </div>
+                <button onclick="saveConfig()"
+                    class="w-full bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-brand-500/25 transition-all transform hover:-translate-y-0.5">
+                    Conectar
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Menu Item: Contacto (Top Level) -->
-    <div class="nav-item">
-        <a href="#contacto" class="nav-text hover:text-gray-300 transition-colors">Contacto</a>
-    </div>
+    <!-- Sidebar -->
+    <aside
+        class="w-20 lg:w-64 flex-shrink-0 bg-dark-800 border-r border-gray-800 flex flex-col transition-all duration-300">
+        <div class="h-20 flex items-center justify-center lg:justify-start lg:px-8 border-b border-gray-800">
+            <div
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <span class="font-bold text-white text-lg">C</span>
+            </div>
+            <span class="ml-3 font-bold text-xl hidden lg:block tracking-tight">Coria<span
+                    class="text-brand-500">Digital</span></span>
+        </div>
 
-    </nav>
-    </div>
+        <nav class="flex-1 overflow-y-auto py-6 space-y-2 px-3">
+            <button onclick="switchView('overview')"
+                class="nav-item w-full flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all group active-nav">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:text-brand-500 transition-colors"></i>
+                <span class="hidden lg:block font-medium">Dashboard</span>
+            </button>
+            <button onclick="switchView('clients')"
+                class="nav-item w-full flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="users" class="w-5 h-5 group-hover:text-brand-500 transition-colors"></i>
+                <span class="hidden lg:block font-medium">Clientes</span>
+            </button>
+            <button onclick="switchView('posts')"
+                class="nav-item w-full flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="instagram" class="w-5 h-5 group-hover:text-brand-500 transition-colors"></i>
+                <span class="hidden lg:block font-medium">Publicaciones</span>
+            </button>
+            <button onclick="switchView('tasks')"
+                class="nav-item w-full flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="check-square" class="w-5 h-5 group-hover:text-brand-500 transition-colors"></i>
+                <span class="hidden lg:block font-medium">Campañas</span>
+            </button>
+            <button onclick="switchView('extras')"
+                class="nav-item w-full flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="palette" class="w-5 h-5 group-hover:text-brand-500 transition-colors"></i>
+                <span class="hidden lg:block font-medium">Diseños Extra</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-gray-800">
+            <button onclick="openConfig()"
+                class="w-full flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="hidden lg:block font-medium">Configuración</span>
+            </button>
+        </div>
+    </aside>
 
     <!-- Main Content -->
-    <main>
+    <main class="flex-1 overflow-y-auto bg-dark-900 relative">
+        <!-- Header -->
+        <header class="h-20 glass sticky top-0 z-40 px-8 flex items-center justify-between">
+            <h1 id="pageTitle"
+                class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                Overview</h1>
+            <div class="flex items-center gap-4">
+                <div id="connectionStatus"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 text-red-500 text-xs font-semibold border border-red-500/20">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    Desconectado
+                </div>
+                <button onclick="refreshData()"
+                    class="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
 
-        <!-- Hero Section (Tubes) -->
-        <div id="hero-tubes-container">
-            <canvas id="hero-canvas"></canvas>
+        <div class="p-8 max-w-7xl mx-auto space-y-8">
 
-            <div class="hero-tubes-content container mx-auto px-4 md:px-6 pt-0">
-                <div
-                    class="text-center uppercase tracking-tighter select-none flex flex-col items-center animate-fade-in-up">
-                    <h1
-                        class="text-white leading-[0.9] flex flex-col items-center drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
-                        <!-- CAMBIO: Añadida drop-shadow -->
-                        <!-- Línea 1: ACTIVA -->
-                        <span
-                            class="block font-bold text-[14vw] sm:text-[4rem] md:text-[5.5rem] lg:text-[7rem] bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400 tracking-normal mb-1 md:mb-2 whitespace-nowrap filter drop-shadow-lg"
-                            data-aos="fade-up" data-aos-delay="100"> <!-- CAMBIO: Añadido filter drop-shadow extra -->
-                            ACTIVA
-                        </span>
-
-                        <!-- Línea 2: EL FUTURO DE -->
-                        <span
-                            class="block font-light italic text-[8vw] sm:text-[2.2rem] md:text-[3.2rem] lg:text-[3.8rem] text-gray-300 mb-1 md:mb-2 whitespace-nowrap"
-                            style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);" data-aos="fade-up" data-aos-delay="200">
-                            <!-- CAMBIO: text-shadow inline -->
-                            EL FUTURO DE
-                        </span>
-
-                        <!-- Línea 3: TU NEGOCIO (Negritas) -->
-                        <span
-                            class="block font-bold text-[9vw] sm:text-[2.5rem] md:text-[3.5rem] lg:text-[4.2rem] text-white tracking-wide whitespace-nowrap"
-                            style="text-shadow: 0 4px 15px rgba(0,0,0,0.6);" data-aos="fade-up" data-aos-delay="300">
-                            <!-- CAMBIO: text-shadow inline más fuerte -->
-                            TU NEGOCIO
-                        </span>
-                    </h1>
+            <!-- Views -->
+            <div id="view-overview" class="view-section block animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Stats Cards -->
+                    <div class="glass p-6 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-brand-500/20 rounded-xl text-brand-500">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-sm font-medium">Clientes Activos</h3>
+                        <p class="text-3xl font-bold mt-1" id="statClients">0</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-purple-500/20 rounded-xl text-purple-500">
+                                <i data-lucide="video" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-sm font-medium">Posts Programados</h3>
+                        <p class="text-3xl font-bold mt-1" id="statPosts">0</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-emerald-500/20 rounded-xl text-emerald-500">
+                                <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-sm font-medium">Tareas Pendientes</h3>
+                        <p class="text-3xl font-bold mt-1" id="statTasks">0</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-pink-500/20 rounded-xl text-pink-500">
+                                <i data-lucide="palette" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-sm font-medium">Extras en Proceso</h3>
+                        <p class="text-3xl font-bold mt-1" id="statExtras">0</p>
+                    </div>
                 </div>
 
-                <div class="hero-interactive mt-12" data-aos="zoom-in" data-aos-delay="400">
-                    <a href="#contacto"
-                        class="relative inline-flex h-10 md:h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 group">
-                        <span
-                            class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]"></span>
-                        <span
-                            class="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-6 md:px-8 py-1 text-xs md:text-sm font-medium text-white backdrop-blur-3xl gap-2 md:gap-3">
-                            <svg class="w-4 h-4 md:w-5 md:h-5 text-white transition-colors duration-300 group-hover:text-[#2D8CFF]"
-                                fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M18.067 11.234 23.333 6v12l-5.266-5.234a.998.998 0 0 1 0-1.532ZM15.333 16a2.667 2.667 0 0 1-2.666 2.667H3.333A2.667 2.667 0 0 1 .667 16V8a2.667 2.667 0 0 1 2.666-2.667h9.334A2.667 2.667 0 0 1 15.333 8v8Z" />
-                            </svg>
-                            Agenda una llamada GRATIS
-                        </span>
-                    </a>
-                </div>
-
-                <!-- Logo Cloud (Infinite Slider with Original Logos) -->
-                <div class="w-full max-w-4xl mt-16 md:mt-24 relative z-20 hero-interactive infinite-slider-container"
-                    data-aos="fade-up" data-aos-delay="500">
-                    <div class="infinite-slider-mask">
-                        <div class="infinite-slider-track" id="infinite-slider-track">
-                            <!-- Logos injected by JS -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 glass rounded-2xl p-6">
+                        <h2 class="text-lg font-bold mb-4">Actividad Reciente</h2>
+                        <div id="recentActivity" class="space-y-4">
+                            <!-- Populated by JS -->
+                            <div class="text-gray-500 text-center py-8">Cargando actividad...</div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl p-6">
+                        <h2 class="text-lg font-bold mb-4">Accesos Rápidos</h2>
+                        <div class="space-y-3">
+                            <button onclick="openModal('clientModal')"
+                                class="w-full text-left p-3 rounded-xl bg-dark-800 hover:bg-dark-700 transition flex items-center gap-3 border border-gray-700/50">
+                                <div class="bg-blue-500/20 p-2 rounded-lg text-blue-500"><i data-lucide="plus"
+                                        class="w-4 h-4"></i></div>
+                                <span class="text-sm font-medium">Nuevo Cliente</span>
+                            </button>
+                            <button onclick="openModal('postModal')"
+                                class="w-full text-left p-3 rounded-xl bg-dark-800 hover:bg-dark-700 transition flex items-center gap-3 border border-gray-700/50">
+                                <div class="bg-purple-500/20 p-2 rounded-lg text-purple-500"><i data-lucide="plus"
+                                        class="w-4 h-4"></i></div>
+                                <span class="text-sm font-medium">Nueva Publicación</span>
+                            </button>
+                            <button onclick="openModal('taskModal')"
+                                class="w-full text-left p-3 rounded-xl bg-dark-800 hover:bg-dark-700 transition flex items-center gap-3 border border-gray-700/50">
+                                <div class="bg-emerald-500/20 p-2 rounded-lg text-emerald-500"><i data-lucide="plus"
+                                        class="w-4 h-4"></i></div>
+                                <span class="text-sm font-medium">Nueva Campaña</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Clients View -->
+            <div id="view-clients" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Listado de Clientes</h2>
+                    <button onclick="openModal('clientModal')"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Cliente
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="clientsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Posts View -->
+            <div id="view-posts" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Planificación de Contenido</h2>
+                    <button onclick="openModal('postModal')"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nueva Publicación
+                    </button>
+                </div>
+                <div class="overflow-x-auto pb-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-gray-400 text-xs uppercase tracking-wider border-b border-gray-800">
+                                <th class="p-4 font-medium">Título</th>
+                                <th class="p-4 font-medium">Cliente</th>
+                                <th class="p-4 font-medium">Tipo</th>
+                                <th class="p-4 font-medium">Estado</th>
+                                <th class="p-4 font-medium">Plataformas</th>
+                                <th class="p-4 font-medium">Fecha</th>
+                                <th class="p-4 font-medium text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody" class="text-sm divide-y divide-gray-800/50">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="view-tasks" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Gestión de Campañas</h2>
+                    <button onclick="openModal('taskModal')"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nueva Campaña
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="tasksBoard">
+                    <!-- Kanban Columns (Pending, Active, Done) -->
+                    <div class="glass rounded-xl p-4 flex flex-col h-full bg-dark-800/50">
+                        <h3
+                            class="font-bold text-gray-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span> Pendientes
+                        </h3>
+                        <div id="tasks-pending" class="space-y-3 flex-1 min-h-[200px]"></div>
+                    </div>
+                    <div class="glass rounded-xl p-4 flex flex-col h-full bg-dark-800/50">
+                        <h3
+                            class="font-bold text-gray-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Activas
+                        </h3>
+                        <div id="tasks-active" class="space-y-3 flex-1 min-h-[200px]"></div>
+                    </div>
+                    <div class="glass rounded-xl p-4 flex flex-col h-full bg-dark-800/50">
+                        <h3
+                            class="font-bold text-gray-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Finalizadas
+                        </h3>
+                        <div id="tasks-done" class="space-y-3 flex-1 min-h-[200px]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extras View -->
+            <div id="view-extras" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Diseños Extra</h2>
+                    <button onclick="openModal('extraModal')"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Extra
+                    </button>
+                </div>
+                <div id="extrasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
         </div>
-
-        <!-- Section: Productos Destacados -->
-        <section id="productos"
-            class="bg-gradient-to-b from-black via-zinc-950 to-black py-16 md:py-24 relative overflow-hidden">
-            <!-- Background Glow -->
-            <div
-                class="absolute right-0 top-1/4 w-1/3 h-1/3 bg-green-500/10 blur-[100px] rounded-full pointer-events-none">
-            </div>
-
-            <div class="container mx-auto px-4 md:px-6 relative z-10">
-                <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-
-                    <!-- Text Content -->
-                    <div class="w-full lg:w-1/2 text-center lg:text-left" data-aos="fade-right">
-                        <div
-                            class="inline-block px-4 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold tracking-wider mb-6">
-                            PRODUCTO ESTRELLA
-                        </div>
-                        <h2 class="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                            Vende más con <br />
-                            <span class="text-green-500">WhatsApp iA</span>
-                        </h2>
-                        <p class="text-gray-400 text-base md:text-lg mb-8">
-                            Nuestro Chatbot de Ventas no duerme. Responde preguntas, agenda citas y cierra ventas
-                            automáticamente utilizando el poder de la Inteligencia Artificial.
-                        </p>
-
-                        <div class="flex flex-wrap justify-center lg:justify-start gap-4 mb-10">
-                            <div class="flex items-center gap-2 text-sm text-gray-300">
-                                <i class="fa-solid fa-check-circle text-green-500"></i> Atención 24/7
-                            </div>
-                            <div class="flex items-center gap-2 text-sm text-gray-300">
-                                <i class="fa-solid fa-check-circle text-green-500"></i> Sin código
-                            </div>
-                            <div class="flex items-center gap-2 text-sm text-gray-300">
-                                <i class="fa-solid fa-check-circle text-green-500"></i> Multi-agente
-                            </div>
-                        </div>
-
-                        <a href="https://wa.link/is05e1" target="_blank" rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black bg-green-500 rounded-full hover:bg-green-400 transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] transform hover:scale-105">
-                            <i class="fa-brands fa-whatsapp mr-2 text-xl"></i> Ver Demo en Vivo
-                        </a>
-                    </div>
-
-                    <!-- Visual Mockup -->
-                    <div class="w-full lg:w-1/2 relative" data-aos="fade-left">
-                        <div
-                            class="relative z-10 bg-zinc-900 border border-zinc-800 rounded-3xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.7)] w-full max-w-md mx-auto transform rotate-[-2deg] transition-transform duration-500 hover:rotate-0 hover:scale-[1.02]">
-                            <!-- Mock Chat Interface -->
-                            <div class="bg-[#0b141a] rounded-2xl overflow-hidden h-[400px] flex flex-col">
-                                <div class="bg-[#202c33] p-4 flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
-                                        C</div>
-                                    <div class="text-white text-sm font-medium">CORIA Bot <span
-                                            class="block text-[10px] text-green-400">En línea</span></div>
-                                </div>
-                                <div class="flex-1 p-4 space-y-4 overflow-hidden relative">
-                                    <!-- Chat Bubbles -->
-                                    <div
-                                        class="bg-[#202c33] self-start rounded-lg rounded-tl-none p-3 max-w-[85%] text-white text-sm">
-                                        👋 ¡Hola! Bienvenido a CORIA Digital, ¿En qué puedo ayudarte hoy?
-                                        <div class="text-[10px] text-gray-400 text-right mt-1">10:00 AM</div>
-                                    </div>
-                                    <div
-                                        class="bg-[#005c4b] self-end ml-auto rounded-lg rounded-tr-none p-3 max-w-[85%] text-white text-sm">
-                                        Quiero información sobre automatización.
-                                        <div class="text-[10px] text-green-200 text-right mt-1">10:01 AM</div>
-                                    </div>
-                                    <div
-                                        class="bg-[#202c33] self-start rounded-lg rounded-tl-none p-3 max-w-[85%] text-white text-sm">
-                                        Perfecto. Podemos automatizar tu CRM, facturación o emails. ¿Qué herramienta
-                                        usas actualmente?
-                                        <div class="text-[10px] text-gray-400 text-right mt-1">10:01 AM</div>
-                                    </div>
-                                </div>
-                                <div class="bg-[#202c33] p-3 flex gap-2 items-center">
-                                    <div class="h-8 bg-zinc-700/50 rounded-full flex-1"></div>
-                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center"><i
-                                            class="fa-solid fa-paper-plane text-white text-xs"></i></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Floating Elements (El pequeño que brinca) -->
-                        <div class="absolute -bottom-4 -right-2 md:-bottom-6 md:-right-6 z-20 bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-700 shadow-2xl animate-bounce"
-                            style="animation-duration: 3s;">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-green-500/20 p-2 rounded-lg text-green-500"><i
-                                        class="fa-solid fa-chart-line text-lg"></i></div>
-                                <div>
-                                    <div class="text-white font-bold text-xs md:text-sm">+45%</div>
-                                    <div class="text-[10px] md:text-xs text-gray-400">Conversión</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section: Tool Teaser (Prompt Creator) -->
-        <section id="prompts"
-            class="bg-gradient-to-b from-black via-zinc-950 to-black py-20 md:py-24 relative overflow-hidden">
-            <div class="container mx-auto px-6 relative z-10 text-center">
-                <span class="text-purple-500 font-mono text-xs md:text-sm tracking-wider mb-2 block">HERRAMIENTA
-                    GRATUITA</span>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Generador de Prompts <span
-                        class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Pro</span>
-                </h2>
-                <p class="text-gray-400 max-w-xl mx-auto mb-10 text-sm md:text-base">Crea instrucciones perfectas para
-                    ChatGPT o Gemini en segundos. Deja de adivinar y empieza a crear.</p>
-
-                <!-- Botón estilo WhatsApp pero en morado -->
-                <a href="creator.html"
-                    class="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-purple-600 rounded-full hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] no-underline transform hover:scale-105">
-                    <i class="fa-solid fa-wand-magic-sparkles mr-2 text-xl"></i> Generar
-                </a>
-
-                <p class="mt-8 text-xs text-zinc-600">Prueba gratuita disponible. No requiere tarjeta.</p>
-            </div>
-        </section>
-
-        <!-- (Sección Portafolio Eliminada) -->
-
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-black border-t border-white/5 pt-12 md:pt-16 pb-8">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
-                <div class="col-span-2 md:col-span-1">
-                    <span class="text-2xl font-bold text-white tracking-tight">CORIA Digital</span>
-                    <p class="text-gray-500 text-xs md:text-sm mt-4">Agencia de transformación digital. Creamos el
-                        software y las automatizaciones que impulsan el futuro.</p>
-
-                    <!-- Social Icons -->
-                    <div class="flex gap-4 mt-6">
-                        <a href="https://www.instagram.com/edwards_coria" target="_blank" rel="noopener noreferrer"
-                            class="text-gray-400 hover:text-pink-500 transition-colors"><i
-                                class="fa-brands fa-instagram text-xl"></i></a>
-                        <a href="https://www.linkedin.com/in/edwardscortes/" target="_blank" rel="noopener noreferrer"
-                            class="text-gray-400 hover:text-blue-500 transition-colors"><i
-                                class="fa-brands fa-linkedin text-xl"></i></a>
-                        <a href="https://www.tiktok.com/@edwards.cortes" target="_blank" rel="noopener noreferrer"
-                            class="text-gray-400 hover:text-white transition-colors"><i
-                                class="fa-brands fa-tiktok text-xl"></i></a>
-                        <a href="https://www.facebook.com/coriadigital" target="_blank" rel="noopener noreferrer"
-                            class="text-gray-400 hover:text-blue-600 transition-colors"><i
-                                class="fa-brands fa-facebook text-xl"></i></a>
+    <!-- Modals -->
+    <!-- Add Client Modal -->
+    <div id="clientModal"
+        class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass p-6 rounded-2xl w-full max-w-lg m-4">
+            <h3 class="text-xl font-bold mb-4">Nuevo Cliente</h3>
+            <form onsubmit="handleCreateClient(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 uppercase mb-1">Nombre</label>
+                    <input type="text" name="name" required
+                        class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none">
+                </div>
+                <!-- Simple theme color picker logic could go here, keeping it text for now as per schema -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Tema (Hex Color)</label>
+                        <input type="text" name="theme" placeholder="#000000"
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none">
                     </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Logo URL (Opcional)</label>
+                        <input type="text" name="logo"
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('clientModal')"
+                        class="px-4 py-2 text-gray-400 hover:text-white transition">Cancelar</button>
+                    <button type="submit"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-medium transition">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-                    <!-- Flags -->
-                    <div class="mt-6 flex items-center gap-3">
-                        <span class="text-xs text-gray-500">Operando en:</span>
-                        <div class="flex gap-2">
-                            <img src="https://flagcdn.com/w40/mx.png" alt="México"
-                                class="h-4 w-auto opacity-70 hover:opacity-100 transition-opacity" title="México"
-                                loading="lazy">
-                            <img src="https://flagcdn.com/w40/pe.png" alt="Perú"
-                                class="h-4 w-auto opacity-70 hover:opacity-100 transition-opacity" title="Perú"
-                                loading="lazy">
-                            <img src="https://flagcdn.com/w40/co.png" alt="Colombia"
-                                class="h-4 w-auto opacity-70 hover:opacity-100 transition-opacity" title="Colombia"
-                                loading="lazy">
-                            <img src="https://flagcdn.com/w40/cl.png" alt="Chile"
-                                class="h-4 w-auto opacity-70 hover:opacity-100 transition-opacity" title="Chile"
-                                loading="lazy">
+    <!-- Add Post Modal -->
+    <div id="postModal"
+        class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass p-6 rounded-2xl w-full max-w-2xl m-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4">Nueva Publicación</h3>
+            <form onsubmit="handleCreatePost(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 uppercase mb-1">Título / Concepto</label>
+                    <input type="text" name="title" required
+                        class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Cliente</label>
+                        <select id="postClientSelect" name="client_id" required
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300">
+                            <option value="">Seleccionar...</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Fecha</label>
+                        <input type="date" name="date"
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none schemed-dark">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Tipo</label>
+                        <select name="type"
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300">
+                            <option value="reel">Reel</option>
+                            <option value="clip">Clip</option>
+                            <option value="ugc">UGC</option>
+                            <option value="image">Imagen</option>
+                            <option value="carousel">Carrusel</option>
+                            <option value="note">Nota</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Estado</label>
+                        <select name="status"
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300">
+                            <option value="idea">Idea</option>
+                            <option value="proposal">Propuesta</option>
+                            <option value="draft">Borrador</option>
+                            <option value="ready">Listo</option>
+                            <option value="scheduled">Programado</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 uppercase mb-1">Redes (Ctrl+Click para múltiple)</label>
+                    <select name="networks" multiple
+                        class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300 h-24">
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 uppercase mb-1">Observaciones</label>
+                    <textarea name="observations" rows="3"
+                        class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('postModal')"
+                        class="px-4 py-2 text-gray-400 hover:text-white transition">Cancelar</button>
+                    <button type="submit"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-medium transition">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="taskModal"
+        class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="glass p-6 rounded-2xl w-full max-w-lg m-4">
+            <h3 class="text-xl font-bold mb-4">Nueva Campaña / Tarea</h3>
+            <form onsubmit="handleCreateTask(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 uppercase mb-1">Título</label>
+                    <input type="text" name="title" required
+                        class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Cliente</label>
+                        <select id="taskClientSelect" name="client_id" required
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Plataforma</label>
+                        <select name="platform"
+                            class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300">
+                            <option value="meta">Meta (FB/IG)</option>
+                            <option value="google">Google Ads</option>
+                            <option value="tiktok">TikTok Ads</option>
+                            <option value="linkedin">LinkedIn</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 uppercase mb-1">Estado</label>
+                    <select name="status"
+                        class="w-full bg-dark-800 border border-gray-700 rounded-lg p-2.5 focus:border-brand-500 outline-none text-gray-300">
+                        <option value="pending">Pendiente</option>
+                        <option value="active">Activa</option>
+                        <option value="done">Finalizada</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('taskModal')"
+                        class="px-4 py-2 text-gray-400 hover:text-white transition">Cancelar</button>
+                    <button type="submit"
+                        class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-medium transition">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- State Management ---
+        let supabase = null;
+        let clients = [];
+        let posts = [];
+        let tasks = [];
+        let extras = [];
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initIcons();
+            checkConfig();
+        });
+
+        function initIcons() {
+            lucide.createIcons();
+        }
+
+        // --- Configuration & Supabase Setup ---
+        function checkConfig() {
+            const url = localStorage.getItem('sb_url');
+            const key = localStorage.getItem('sb_key');
+
+            if (!url || !key) {
+                openConfig();
+            } else {
+                initSupabase(url, key);
+            }
+        }
+
+        function openConfig() {
+            document.getElementById('configModal').classList.remove('hidden');
+            document.getElementById('supabaseUrl').value = localStorage.getItem('sb_url') || '';
+            document.getElementById('supabaseKey').value = localStorage.getItem('sb_key') || '';
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+
+            if (url && key) {
+                localStorage.setItem('sb_url', url);
+                localStorage.setItem('sb_key', key);
+                document.getElementById('configModal').classList.add('hidden');
+                initSupabase(url, key);
+            } else {
+                alert('Por favor, ingresa ambos campos');
+            }
+        }
+
+        async function initSupabase(url, key) {
+            try {
+                // Initialize Supabase client
+                // Note: Using a global variable for simplicity in this single-file demo
+                supabase = window.supabase.createClient(url, key);
+
+                // Update UI status
+                const statusEl = document.getElementById('connectionStatus');
+                statusEl.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 transition-all';
+                statusEl.innerHTML = '<div class="w-2 h-2 rounded-full bg-green-500"></div> Conectado';
+
+                // Fetch initial data
+                await refreshData();
+
+                // Setup realtime support (optional, simple polling or subscription)
+                // For this demo, we'll subscribe to changes
+                setupRealtime();
+
+            } catch (err) {
+                console.error("Supabase init error:", err);
+                alert("Error conectando a Supabase. Verifica tus credenciales.");
+            }
+        }
+
+        // --- Data Fetching ---
+        async function refreshData() {
+            if (!supabase) return;
+
+            // Fetch Clients
+            const { data: dataClients } = await supabase.from('clients').select('*').order('created_at', { ascending: false });
+            clients = dataClients || [];
+
+            // Fetch Posts
+            const { data: dataPosts } = await supabase.from('posts').select('*, clients(name, theme)').order('date', { ascending: true });
+            posts = dataPosts || [];
+
+            // Fetch Tasks
+            const { data: dataTasks } = await supabase.from('tasks').select('*, clients(name)').order('created_at', { ascending: false });
+            tasks = dataTasks || [];
+
+            // Fetch Extras
+            const { data: dataExtras } = await supabase.from('extras').select('*, clients(name)').order('created_at', { ascending: false });
+            extras = dataExtras || [];
+
+            updateUI();
+        }
+
+        function setupRealtime() {
+            // Simple blanket subscription to all 4 tables
+            supabase.channel('public:any')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, payload => { refreshData() })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, payload => { refreshData() })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, payload => { refreshData() })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'extras' }, payload => { refreshData() })
+                .subscribe();
+        }
+
+        // --- UI Updates ---
+        function updateUI() {
+            // Update Stats
+            document.getElementById('statClients').innerText = clients.length;
+            document.getElementById('statPosts').innerText = posts.filter(p => p.status === 'scheduled').length;
+            document.getElementById('statTasks').innerText = tasks.filter(t => t.status === 'pending').length;
+            document.getElementById('statExtras').innerText = extras.filter(e => e.status === 'working').length;
+
+            // Update Recent Activity
+            renderRecentActivity();
+
+            // Update Views
+            renderClients();
+            renderPosts();
+            renderTasks();
+
+            // Update Selects in Modals
+            updateClientSelects();
+        }
+
+        function renderRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            // Combine recent items (simple approach)
+            const allItems = [
+                ...posts.map(p => ({ type: 'post', date: p.created_at, title: p.title, status: p.status })),
+                ...tasks.map(t => ({ type: 'task', date: t.created_at, title: t.title, status: t.status }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+            if (allItems.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center py-4">No hay actividad reciente.</div>';
+                return;
+            }
+
+            container.innerHTML = allItems.map(item => {
+                let icon = item.type === 'post' ? 'instagram' : 'check-square';
+                let color = item.type === 'post' ? 'text-purple-500' : 'text-emerald-500';
+                let bg = item.type === 'post' ? 'bg-purple-500/10' : 'bg-emerald-500/10';
+
+                return `
+                    <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition">
+                        <div class="p-2 rounded-lg ${bg} ${color}">
+                            <i data-lucide="${icon}" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-sm text-gray-200">${item.title}</p>
+                            <p class="text-xs text-gray-500 capitalize">${item.type === 'post' ? 'Publicación' : 'Campaña'} • ${item.status}</p>
+                        </div>
+                        <div class="ml-auto text-xs text-gray-600">
+                            ${new Date(item.date).toLocaleDateString()}
                         </div>
                     </div>
+                 `;
+            }).join('');
+            initIcons();
+        }
+
+        function renderClients() {
+            const grid = document.getElementById('clientsGrid');
+            grid.innerHTML = clients.map(client => `
+                <div class="glass p-6 rounded-2xl group hover:border-brand-500/50 transition-all">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg bg-gray-800 text-gray-400 border border-gray-700" style="background-color: ${client.theme}20; color: ${client.theme}; border-color: ${client.theme}40">
+                             ${client.logo ? `<img src="${client.logo}" class="w-full h-full object-cover rounded-full" />` : client.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <button onclick="deleteItem('clients', '${client.id}')" class="text-gray-600 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-bold text-lg">${client.name}</h3>
+                    <div class="mt-4 flex gap-2">
+                         <span class="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 border border-white/5">ID: ${client.id.substring(0, 8)}...</span>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 text-sm md:text-base">Servicios</h4>
-                    <ul class="space-y-2 text-xs md:text-sm text-gray-400">
-                        <li><a href="automatizacion.html" class="hover:text-purple-400">Automatización n8n</a></li>
-                        <li><a href="diseno-web.html" class="hover:text-purple-400">Desarrollo Web</a></li>
-                        <li><a href="software.html" class="hover:text-purple-400">Software a Medida</a></li>
-                        <li><a href="marketing-seo.html" class="hover:text-purple-400">SEO Estratégico</a></li>
-                    </ul>
+            `).join('');
+            initIcons();
+        }
+
+        function renderPosts() {
+            const tbody = document.getElementById('postsTableBody');
+            tbody.innerHTML = posts.map(post => {
+                const clientName = post.clients?.name || 'Unknown';
+                const statusColors = {
+                    idea: 'bg-gray-500/20 text-gray-400',
+                    proposal: 'bg-blue-500/20 text-blue-400',
+                    draft: 'bg-yellow-500/20 text-yellow-400',
+                    ready: 'bg-emerald-500/20 text-emerald-400',
+                    scheduled: 'bg-purple-500/20 text-purple-400',
+                };
+
+                return `
+                <tr class="hover:bg-white/5 transition-colors group">
+                    <td class="p-4 font-medium">${post.title}</td>
+                    <td class="p-4 text-gray-400">${clientName}</td>
+                    <td class="p-4"><span class="capitalize text-gray-400">${post.type}</span></td>
+                    <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-semibold ${statusColors[post.status] || 'bg-gray-800'}">${post.status}</span></td>
+                    <td class="p-4 text-gray-400 flex gap-1">${(post.networks || []).map(n => n.substring(0, 1).toUpperCase()).join(', ')}</td>
+                    <td class="p-4 text-gray-400">${post.date || '-'}</td>
+                     <td class="p-4 text-right">
+                        <button onclick="deleteItem('posts', '${post.id}')" class="text-gray-600 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+            initIcons();
+        }
+
+        function renderTasks() {
+            // Group By Status
+            const pending = tasks.filter(t => t.status === 'pending');
+            const active = tasks.filter(t => t.status === 'active');
+            const done = tasks.filter(t => t.status === 'done');
+
+            const renderCard = (task) => `
+                <div class="bg-dark-900 border border-gray-800 p-4 rounded-lg hover:border-brand-500/50 transition cursor-pointer group">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-brand-500 font-medium">${task.clients?.name || 'Client'}</span>
+                         <button onclick="deleteItem('tasks', '${task.id}')" class="text-gray-600 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
+                             <i data-lucide="x" class="w-3 h-3"></i>
+                         </button>
+                    </div>
+                    <h4 class="font-bold text-sm mb-2 text-gray-200">${task.title}</h4>
+                    <div class="flex items-center justify-between mt-3">
+                         <span class="text-xs px-2 py-1 rounded bg-white/5 text-gray-500 capitalize">${task.platform || 'General'}</span>
+                         
+                         <!-- Simple Status Switcher -->
+                         <div class="flex gap-1">
+                            ${task.status !== 'pending' ? `<button onclick="updateStatus('tasks', '${task.id}', 'pending')" class="p-1 hover:bg-white/10 rounded text-gray-500" title="Pendiente"><i data-lucide="arrow-left" class="w-3 h-3"></i></button>` : ''}
+                            ${task.status !== 'done' ? `<button onclick="updateStatus('tasks', '${task.id}', 'done')" class="p-1 hover:bg-white/10 rounded text-gray-500" title="Finalizar"><i data-lucide="check" class="w-3 h-3"></i></button>` : ''}
+                             ${task.status === 'pending' ? `<button onclick="updateStatus('tasks', '${task.id}', 'active')" class="p-1 hover:bg-white/10 rounded text-gray-500" title="Activar"><i data-lucide="play" class="w-3 h-3"></i></button>` : ''}
+                         </div>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 text-sm md:text-base">Productos</h4>
-                    <ul class="space-y-2 text-xs md:text-sm text-gray-400">
-                        <li><a href="recepcionista.html" class="hover:text-green-400">Recepcionista iA</a></li>
-                        <li><a href="#" class="hover:text-purple-400">Cursos IA</a></li>
-                        <li><a href="#" class="hover:text-pink-400">Plantillas</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 text-sm md:text-base">Legal</h4>
-                    <ul class="space-y-2 text-xs md:text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white">Privacidad</a></li>
-                        <li><a href="#" class="hover:text-white">Términos</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-white/5 pt-8 text-center text-xs md:text-sm text-gray-600">
-                &copy; 2025 CORIA Digital. Todos los derechos reservados.
-            </div>
-        </div>
-    </footer>
+            `;
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+            document.getElementById('tasks-pending').innerHTML = pending.map(renderCard).join('');
+            document.getElementById('tasks-active').innerHTML = active.map(renderCard).join('');
+            document.getElementById('tasks-done').innerHTML = done.map(renderCard).join('');
+            initIcons();
+        }
 
-    <script type="module">
-        import TubesCursor from 'https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js';
+        // --- Form Handling ---
+        function updateClientSelects() {
+            const opts = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('postClientSelect').innerHTML = '<option value="">Seleccionar...</option>' + opts;
+            document.getElementById('taskClientSelect').innerHTML = '<option value="">Seleccionar...</option>' + opts;
+        }
 
-        const canvas = document.getElementById('hero-canvas');
-        const container = document.getElementById('hero-tubes-container');
+        async function handleCreateClient(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
 
-        if (canvas && container) {
-            // Ajuste de tamaño inicial
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            const { error } = await supabase.from('clients').insert([data]);
+            if (error) alert(error.message);
+            else { closeModal('clientModal'); e.target.reset(); refreshData(); }
+        }
 
-            const app = TubesCursor(canvas, {
-                tubes: {
-                    colors: ["#8B5CF6", "#EC4899", "#25D366"], // Colores de tu marca (Violeta, Rosa, Verde)
-                    lights: {
-                        intensity: 200,
-                        colors: ["#8B5CF6", "#000000", "#EC4899"]
-                    }
-                }
-            });
+        async function handleCreatePost(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
 
-            const randomColors = (count) => {
-                return new Array(count)
-                    .fill(0)
-                    .map(() => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
+            // Handle multiselect
+            const networks = Array.from(e.target.querySelector('select[name="networks"]').selectedOptions).map(o => o.value);
+
+            const data = {
+                title: formData.get('title'),
+                client_id: formData.get('client_id'),
+                date: formData.get('date'),
+                type: formData.get('type'),
+                status: formData.get('status'),
+                observations: formData.get('observations'),
+                networks: networks
             };
 
-            container.addEventListener('click', (e) => {
-                // Evitar cambio de color si se hace click en botones interactivos
-                if (e.target.closest('.hero-interactive') || e.target.closest('.navbar-floating')) return;
-
-                const newTubeColors = randomColors(3);
-                const newLightColors = randomColors(4);
-                app.tubes.setColors(newTubeColors);
-                app.tubes.setLightsColors(newLightColors);
-            });
-
-            window.addEventListener('resize', () => {
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-            });
+            const { error } = await supabase.from('posts').insert([data]);
+            if (error) alert(error.message);
+            else { closeModal('postModal'); e.target.reset(); refreshData(); }
         }
-    </script>
 
-    <script>
-        AOS.init({ duration: 800, once: true });
+        async function handleCreateTask(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
 
-        // --- INFINITE SLIDER LOGIC ---
-        const sliderTrack = document.getElementById('infinite-slider-track');
-        const sliderContainer = document.querySelector('.infinite-slider-container');
+            const { error } = await supabase.from('tasks').insert([data]);
+            if (error) alert(error.message);
+            else { closeModal('taskModal'); e.target.reset(); refreshData(); }
+        }
 
-        const config = {
-            gap: 42,
-            speed: 0.8,
-            speedOnHover: 0.25
-        };
+        // --- Actions ---
+        async function deleteItem(table, id) {
+            if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
+            const { error } = await supabase.from(table).delete().eq('id', id);
+            if (error) alert('Error: ' + error.message);
+            else refreshData();
+        }
 
-        let currentSpeed = config.speed;
-        let position = 0;
-        let animationFrameId;
+        async function updateStatus(table, id, status) {
+            const { error } = await supabase.from(table).update({ status }).eq('id', id);
+            if (error) alert('Error: ' + error.message);
+            else refreshData();
+        }
 
-        const logos = [
-            { src: "https://svgl.app/library/nvidia-wordmark-light.svg", alt: "Nvidia Logo" },
-            { src: "https://svgl.app/library/supabase_wordmark-light.svg", alt: "Supabase Logo" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg", alt: "OpenAI Logo" },
-            { src: "https://svgl.app/library/turso-wordmark-light.svg", alt: "Turso Logo" },
-            { src: "https://svgl.app/library/vercel_wordmark-light.svg", alt: "Vercel Logo" },
-            { src: "https://svgl.app/library/github_wordmark-light.svg", alt: "GitHub Logo" },
-            { src: "https://svgl.app/library/claude-ai-wordmark-icon-light.svg", alt: "Claude AI Logo" },
-            { src: "https://svgl.app/library/clerk-wordmark-light.svg", alt: "Clerk Logo" },
-            { src: "https://svgl.app/library/n8n.svg", alt: "n8n Logo" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg", alt: "Gemini Logo" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg", alt: "Google Logo" },
-        ];
+        // --- Views & Modals ---
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block', 'animate-fade-in');
+            });
+            // Show selected view
+            const selected = document.getElementById('view-' + viewName);
+            selected.classList.remove('hidden');
+            selected.classList.add('block', 'animate-fade-in');
 
-        if (sliderTrack) {
-            sliderTrack.style.gap = `${config.gap}px`;
-
-            const generateLogoHTML = (logo) =>
-                `<img src="${logo.src}" alt="${logo.alt}" class="logo-img" loading="lazy" style="height: 20px; width: auto; object-fit: contain;" onerror="this.style.display='none'"/>`;
-
-            const safeLogos = logos.map(generateLogoHTML).join('');
-            sliderTrack.innerHTML = safeLogos + safeLogos + safeLogos + safeLogos;
-
-            const animate = () => {
-                position -= currentSpeed;
-                const trackWidth = sliderTrack.scrollWidth;
-                const setWidth = trackWidth / 4;
-
-                if (Math.abs(position) >= setWidth) {
-                    position += setWidth;
-                }
-
-                sliderTrack.style.transform = `translateX(${position}px)`;
-                animationFrameId = requestAnimationFrame(animate);
+            // Update Title
+            const titles = {
+                overview: 'Overview',
+                clients: 'Clientes',
+                posts: 'Publicaciones',
+                tasks: 'Campañas',
+                extras: 'Diseños Extra'
             };
+            document.getElementById('pageTitle').innerText = titles[viewName];
 
-            animate();
-
-            if (sliderContainer) {
-                sliderContainer.addEventListener('mouseenter', () => {
-                    currentSpeed = config.speedOnHover;
-                });
-
-                sliderContainer.addEventListener('mouseleave', () => {
-                    currentSpeed = config.speed;
-                });
-            }
+            // Update Nav State
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/5', 'text-white'));
+            // Find button that called this (a bit hacky but works for demo)
+            // ... omitting complex nav active state logic for brevity, just reset all
         }
 
-        function toggleMenu(element) {
-            // Close other open menus
-            document.querySelectorAll('.nav-item.active').forEach(item => {
-                if (item !== element) item.classList.remove('active');
-            });
-            element.classList.toggle('active');
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
         }
 
-        // Add click event listeners for mobile support
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768) {
-                    toggleMenu(item);
-                }
-            });
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.nav-item')) {
-                document.querySelectorAll('.nav-item.active').forEach(item => {
-                    item.classList.remove('active');
-                });
-            }
-        });
-
-        // --- LOGICA SCROLL NAVBAR INTELIGENTE ---
-        // Detecta la dirección del scroll para ocultar/mostrar el menú
-        let lastScrollY = window.scrollY;
-        const navbar = document.querySelector('.navbar-container');
-
-        window.addEventListener('scroll', () => {
-            if (!navbar) return;
-
-            const currentScrollY = window.scrollY;
-            const scrollThreshold = 50; // Mínimo scroll para activar
-
-            // Si estamos bajando y hemos pasado el umbral
-            if (currentScrollY > lastScrollY && currentScrollY > scrollThreshold) {
-                navbar.classList.add('navbar-hidden');
-            }
-            // Si estamos subiendo
-            else {
-                navbar.classList.remove('navbar-hidden');
-            }
-
-            lastScrollY = currentScrollY;
-        });
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
 
     </script>
-
 </body>
 
 </html>
